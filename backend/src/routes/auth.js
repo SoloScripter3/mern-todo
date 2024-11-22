@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const User = require("../models/users");
 
 router.post("/register", async (req, res) => {
@@ -21,6 +22,28 @@ router.post("/register", async (req, res) => {
   } catch (err) {
     console.log("some error", err);
     return res.json({ message: "Internal server error" });
+  }
+});
+
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.json({ message: "User does not exist" });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.json({ message: "Invalid password" });
+    }
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
+      expiresIn: "1h",
+    });
+    return res.json({ token });
+  } catch (err) {
+    return res.status(500).json({ message: "error logging in" });
   }
 });
 

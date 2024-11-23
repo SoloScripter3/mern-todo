@@ -55,7 +55,7 @@ router.put("/:id", authMiddleware, async (req, res) => {
 });
 
 //delete route
-router.post("/:id", authMiddleware, async (req, res) => {
+router.delete("/:id", authMiddleware, async (req, res) => {
   try {
     const todo = await Todo.findOneAndDelete({
       _id: req.params.id,

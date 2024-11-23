@@ -1,9 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const Todo = require("../models/todos");
+const authMiddleware = require("../middlewares/authMiddleware");
 
 //getting all todos
-router.get("/", async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
   try {
     const todos = await Todo.find({ user: req.user });
     return res.json(todos);
@@ -13,7 +14,7 @@ router.get("/", async (req, res) => {
 });
 
 //adding todo
-router.post("/add", auth, async (req, res) => {
+router.post("/add", authMiddleware, async (req, res) => {
   try {
     const newTodo = new Todo({
       title: req.body.title,
@@ -27,7 +28,7 @@ router.post("/add", auth, async (req, res) => {
 });
 
 //updating completed task
-router.put("/:id", async (req, res) => {
+router.put("/:id", authMiddleware, async (req, res) => {
   try {
     const updates = {};
     if (req.body.title !== undefined) {
@@ -54,7 +55,7 @@ router.put("/:id", async (req, res) => {
 });
 
 //delete route
-router.post("/:id", async (req, res) => {
+router.post("/:id", authMiddleware, async (req, res) => {
   try {
     const todo = await Todo.findOneAndDelete({
       _id: req.params.id,
@@ -68,3 +69,5 @@ router.post("/:id", async (req, res) => {
     return res.json({ message: "error occured during deletion" });
   }
 });
+
+module.exports = router;
